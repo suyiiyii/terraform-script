@@ -25,16 +25,11 @@ data "vsphere_network" "network" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
-data "vsphere_virtual_machine" "template_from_ovf" {
-  name          = "ubuntu-noble-24.04-cloudimg"
-  datacenter_id = data.vsphere_datacenter.datacenter.id
-
-}
 data "vsphere_virtual_machine" "template" {
-  name          = "ubuntu-noble-24.04-cloudimg"
+  name          = "ubuntu-noble-24.04-cloudimg_240822"
   datacenter_id = data.vsphere_datacenter.datacenter.id
-
 }
+
 locals {
   hostname = "ubuntu-99"
   userdata_origin = templatefile("user-data.yaml.tpl", {
