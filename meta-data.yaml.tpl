@@ -8,7 +8,7 @@ network:
         name: ens**
       dhcp4: no
       addresses:
-        - 10.21.22.99/24
+        - ${ipv4}/24
       gateway4: 10.21.22.1
       nameservers:
         addresses:

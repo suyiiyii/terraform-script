@@ -31,7 +31,12 @@ data "vsphere_virtual_machine" "template" {
 }
 
 locals {
-  hostname = "ubuntu-99"
+  ip           = "10.21.22.98"
+  vm_name      = "ubuntu"
+  ip_parts     = split(".", local.ip)
+  ip_last_part = element(split(".", local.ip), length(split(".", local.ip)) - 1)
+  hostname     = format("%s-%s", local.vm_name, element(split(".", local.ip), length(split(".", local.ip)) - 1))
+
   userdata_origin = templatefile("user-data.yaml.tpl", {
     "hostname"      = local.hostname
     "nerdctl"       = false
@@ -47,14 +52,14 @@ locals {
   userdata-encoding = "base64"
 
   metadata_origin = templatefile("meta-data.yaml.tpl", {
-    "ipv4" = "10.21.22.99"
+    "ipv4" = local.ip
   })
   metadata          = base64encode(local.metadata_origin)
   metadata-encoding = "base64"
 }
 
 resource "vsphere_virtual_machine" "vm" {
-  name             = "clone_test"
+  name             = local.hostname
   resource_pool_id = data.vsphere_host.esxi_host.resource_pool_id
   datastore_id     = data.vsphere_datastore.datastore.id
   num_cpus         = 8
@@ -67,8 +72,8 @@ resource "vsphere_virtual_machine" "vm" {
   }
   disk {
     label            = "disk0"
-    size             = data.vsphere_virtual_machine.template.disks.0.size
-    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
+    size             = 100
+    thin_provisioned = true
   }
   cdrom {
     client_device = true
