@@ -36,36 +36,40 @@ data "vsphere_virtual_machine" "template" {
 
 }
 
-## Deployment of VM from Local OVF
-resource "vsphere_virtual_machine" "vmFromLocalOvf" {
-  name             = "local-foo"
-  datacenter_id    = data.vsphere_datacenter.datacenter.id
-  datastore_id     = data.vsphere_datastore.datastore.id
-  host_system_id   = data.vsphere_host.esxi_host.id
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "clone_test"
   resource_pool_id = data.vsphere_host.esxi_host.resource_pool_id
-
-  wait_for_guest_net_timeout = 0
-  wait_for_guest_ip_timeout  = 0
-
-  ovf_deploy {
-    allow_unverified_ssl_cert = false
-    local_ovf_path            = "C:/Users/suyiiyii/Downloads/noble-server-cloudimg-amd64.ova"
-    disk_provisioning         = "thin"
-    ip_protocol               = "IPV4"
-    ip_allocation_policy      = "STATIC_MANUAL"
-    ovf_network_map = {
-      "Network 1" = data.vsphere_network.network.id
-      "Network 2" = data.vsphere_network.network.id
-    }
+  datastore_id     = data.vsphere_datastore.datastore.id
+  num_cpus         = 1
+  memory           = 1024
+  guest_id         = data.vsphere_virtual_machine.template.guest_id
+  scsi_type        = data.vsphere_virtual_machine.template.scsi_type
+  network_interface {
+    network_id   = data.vsphere_network.network.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
   }
-  
+  disk {
+    label            = "disk0"
+    size             = data.vsphere_virtual_machine.template.disks.0.size
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
+  }
   cdrom {
     client_device = true
   }
-
+  clone {
+    template_uuid = data.vsphere_virtual_machine.template.id
+    # customize {
+    #   linux_options {
+    #     host_name = "foo"
+    #     domain    = "example.com"
+    #   }
+    # }
+  }
   extra_config = {
     "guestinfo.userdata"          = var.userdata
+    "guestinfo.userdata.encoding" = "base64"
+    "guestinfo.metadata"          = "aW5zdGFuY2UtaWQ6IGNsb3VkLXZtCmxvY2FsLWhvc3RuYW1lOiBjbG91ZC12bQpuZXR3b3JrOgogIHZlcnNpb246IDIKICBldGhlcm5ldHM6CiAgICBpbnRlcmZhY2UwOgogICAgICBtYXRjaDoKICAgICAgICBuYW1lOiBlbnMqKgogICAgICBkaGNwNDogbm8KICAgICAgYWRkcmVzc2VzOgogICAgICAgIC0gMTAuMjEuMjIuMjIvMjQKICAgICAgZ2F0ZXdheTQ6IDEwLjIxLjIyLjEKICAgICAgbmFtZXNlcnZlcnM6CiAgICAgICAgYWRkcmVzc2VzOgogICAgICAgICAgLSAyMjMuNS41LjUKICAgICAgICAgIC0gOC44LjguOA=="
     "guestinfo.metadata.encoding" = "base64"
   }
-
 }
