@@ -35,14 +35,35 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 
 }
+locals {
+  hostname = "ubuntu-99"
+  userdata_origin = templatefile("user-data.yaml.tpl", {
+    "hostname"      = local.hostname
+    "nerdctl"       = false
+    "docker_dind"   = false
+    "docker_ce"     = true
+    "docker_ubuntu" = false
+    "k8s_tools"     = false
+    "helm"          = false
+    "k9s"           = false
+    "neofetch"      = false
+  })
+  userdata          = base64encode(local.userdata_origin)
+  userdata-encoding = "base64"
 
+  metadata_origin = templatefile("meta-data.yaml.tpl", {
+    "ipv4" = "10.21.22.99"
+  })
+  metadata          = base64encode(local.metadata_origin)
+  metadata-encoding = "base64"
+}
 
 resource "vsphere_virtual_machine" "vm" {
   name             = "clone_test"
   resource_pool_id = data.vsphere_host.esxi_host.resource_pool_id
   datastore_id     = data.vsphere_datastore.datastore.id
-  num_cpus         = 1
-  memory           = 1024
+  num_cpus         = 8
+  memory           = 4096
   guest_id         = data.vsphere_virtual_machine.template.guest_id
   scsi_type        = data.vsphere_virtual_machine.template.scsi_type
   network_interface {
@@ -59,17 +80,11 @@ resource "vsphere_virtual_machine" "vm" {
   }
   clone {
     template_uuid = data.vsphere_virtual_machine.template.id
-    # customize {
-    #   linux_options {
-    #     host_name = "foo"
-    #     domain    = "example.com"
-    #   }
-    # }
   }
   extra_config = {
-    "guestinfo.userdata"          = var.userdata
-    "guestinfo.userdata.encoding" = "base64"
-    "guestinfo.metadata"          = "aW5zdGFuY2UtaWQ6IGNsb3VkLXZtCmxvY2FsLWhvc3RuYW1lOiBjbG91ZC12bQpuZXR3b3JrOgogIHZlcnNpb246IDIKICBldGhlcm5ldHM6CiAgICBpbnRlcmZhY2UwOgogICAgICBtYXRjaDoKICAgICAgICBuYW1lOiBlbnMqKgogICAgICBkaGNwNDogbm8KICAgICAgYWRkcmVzc2VzOgogICAgICAgIC0gMTAuMjEuMjIuMjIvMjQKICAgICAgZ2F0ZXdheTQ6IDEwLjIxLjIyLjEKICAgICAgbmFtZXNlcnZlcnM6CiAgICAgICAgYWRkcmVzc2VzOgogICAgICAgICAgLSAyMjMuNS41LjUKICAgICAgICAgIC0gOC44LjguOA=="
-    "guestinfo.metadata.encoding" = "base64"
+    "guestinfo.userdata"          = local.userdata
+    "guestinfo.userdata.encoding" = local.userdata-encoding
+    "guestinfo.metadata"          = local.metadata
+    "guestinfo.metadata.encoding" = local.metadata-encoding
   }
 }
