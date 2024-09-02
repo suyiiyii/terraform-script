@@ -30,42 +30,38 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
+variable "ips" {
+  type = list(string)
+  default = [
+    # "10.21.22.65",
+    # "10.21.22.66",
+    # "10.21.22.67",
+    # "10.21.22.68",
+    # "10.21.22.69",
+  ]
+}
+
+
 locals {
-  ip           = "10.21.22.98"
-  vm_name      = "ubuntu"
-  ip_parts     = split(".", local.ip)
-  ip_last_part = element(split(".", local.ip), length(split(".", local.ip)) - 1)
-  hostname     = format("%s-%s", local.vm_name, element(split(".", local.ip), length(split(".", local.ip)) - 1))
-
-  userdata_origin = templatefile("user-data.yaml.tpl", {
-    "hostname"      = local.hostname
-    "nerdctl"       = false
-    "docker_dind"   = false
-    "docker_ce"     = true
-    "docker_ubuntu" = false
-    "k8s_tools"     = false
-    "helm"          = false
-    "k9s"           = false
-    "neofetch"      = false
-  })
-  userdata          = base64encode(local.userdata_origin)
-  userdata-encoding = "base64"
-
-  metadata_origin = templatefile("meta-data.yaml.tpl", {
-    "ipv4" = local.ip
-  })
-  metadata          = base64encode(local.metadata_origin)
-  metadata-encoding = "base64"
+  vm_name = "ubuntu"
+  vms = {
+    for ip in var.ips : ip => {
+      ip       = ip
+      hostname = "${local.vm_name}-${split(".", ip)[length(split(".", ip)) - 1]}"
+    }
+  }
 }
 
 resource "vsphere_virtual_machine" "vm" {
-  name             = local.hostname
-  resource_pool_id = data.vsphere_host.esxi_host.resource_pool_id
-  datastore_id     = data.vsphere_datastore.datastore.id
-  num_cpus         = 8
-  memory           = 4096
-  guest_id         = data.vsphere_virtual_machine.template.guest_id
-  scsi_type        = data.vsphere_virtual_machine.template.scsi_type
+  for_each          = local.vms
+  name              = each.value.hostname
+  resource_pool_id  = data.vsphere_host.esxi_host.resource_pool_id
+  datastore_id      = data.vsphere_datastore.datastore.id
+  num_cpus          = 4
+  memory            = 4096
+  guest_id          = data.vsphere_virtual_machine.template.guest_id
+  scsi_type         = data.vsphere_virtual_machine.template.scsi_type
+  nested_hv_enabled = true
   network_interface {
     network_id   = data.vsphere_network.network.id
     adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
@@ -82,9 +78,23 @@ resource "vsphere_virtual_machine" "vm" {
     template_uuid = data.vsphere_virtual_machine.template.id
   }
   extra_config = {
-    "guestinfo.userdata"          = local.userdata
-    "guestinfo.userdata.encoding" = local.userdata-encoding
-    "guestinfo.metadata"          = local.metadata
-    "guestinfo.metadata.encoding" = local.metadata-encoding
+    "guestinfo.userdata" = base64encode(templatefile("user-data.yaml.tpl", {
+      "hostname"      = each.value.hostname
+      "nerdctl"       = false
+      "docker_dind"   = false
+      "docker_ce"     = false
+      "docker_ubuntu" = false
+      "k8s_tools"     = false
+      "helm"          = false
+      "k9s"           = false
+      "neofetch"      = false
+      "k3s"           = false
+    }))
+    "guestinfo.userdata.encoding" = "base64"
+
+    "guestinfo.metadata" = base64encode(templatefile("meta-data.yaml.tpl", {
+      "ipv4" = each.value.ip
+    }))
+    "guestinfo.metadata.encoding" = "base64"
   }
 }

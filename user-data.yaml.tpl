@@ -353,3 +353,28 @@ runcmd:
   - curl -sS https://webinstall.dev/k9s | bash
 
 %{endif}
+
+%{if k3s}
+
+  - |
+    mkdir -p /etc/rancher/k3s && cat > /etc/rancher/k3s/registries.yaml <<EOF
+    mirrors:
+      docker.io:
+        endpoint:
+          - "https://cr.suyiiyii.top/docker.io/v2/"
+      registry.k8s.io:
+        endpoint:
+          - "https://cr.suyiiyii.top/registry.k8s.io/v2/"
+      quay.io:
+        endpoint:
+          - "https://cr.suyiiyii.top/quay.io/v2/"
+      gcr.io:
+        endpoint:
+          - "https://cr.suyiiyii.top/gcr.io/v2/"
+      ghcr.io:
+        endpoint:
+          - "https://cr.suyiiyii.top/ghcr.io/v2/"
+    EOF
+
+  - curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIRROR=cn sh -
+%{endif}

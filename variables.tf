@@ -12,9 +12,3 @@ variable "vsphere_server" {
   description = "The vSphere server address"
   type        = string
 }
-
-variable "userdata" {
-  description = "The userdata for the VM"
-  type        = string
-  
-}
