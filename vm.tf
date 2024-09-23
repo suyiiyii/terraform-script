@@ -54,7 +54,7 @@ locals {
 
 resource "vsphere_virtual_machine" "vm" {
   for_each          = local.vms
-  name              = each.value.hostname
+  name              = "${each.value.hostname}"
   resource_pool_id  = data.vsphere_host.esxi_host.resource_pool_id
   datastore_id      = data.vsphere_datastore.datastore.id
   num_cpus          = 4
