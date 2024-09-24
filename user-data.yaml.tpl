@@ -267,8 +267,11 @@ runcmd:
     mkdir -p /etc/docker &&
     echo "{  \"registry-mirrors\": [    \"https://docker.m.ixdev.cn\"  ]}" > /etc/docker/daemon.json
 
-  # 配置 docker 版 lazydocker 
+  # 配置 docker 版 lazydocker 命令行容器管理工具
   - echo "alias lzd='docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v /root/config:/.config/jesseduffield/lazydocker lazyteam/lazydocker'" >> ~/.bashrc
+
+  # 配置 docker 版 dive 命令行容器镜像分析工具
+  - echo "alias dive='docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive'" >> ~/.bashrc
 %{endif}
 
 
