@@ -20,7 +20,7 @@ ntp:
     - ntp1.aliyun.com
 
 # 安装软件
-# package_update: true
+package_update: true
 # package_upgrade: true
 
 # hostname
@@ -165,6 +165,7 @@ runcmd:
 
   # 应用 sysctl 参数而不重新启动
   - sudo sysctl --system
+  - apt install -y curl wget htop btop vim git tmux
 
 %{if nerdctl}
 
@@ -339,7 +340,7 @@ runcmd:
 
 %{if neofetch}
   # 安装 neofetch
-  - apt-get -o pkgProblemResolver=true -o Acquire::http=true install neofetch wget curl -y
+  - apt-get -o pkgProblemResolver=true -o Acquire::http=true install neofetch -y
 
 %{endif}
 
