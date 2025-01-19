@@ -140,7 +140,8 @@ final_message: |
 
 runcmd:
   # 允许 root 登录
-  - sed -i '1s/^.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys
+  - sed -i 's/^.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys
+  - sed -i 's/^.*ssh-ed/ssh-ed/' /root/.ssh/authorized_keys
   # 关闭 apt 下载缓存
   - echo 'Acquire::http::No-Cache true;' > /etc/apt/apt.conf.d/no-cache
   - echo "Acquire::http::Proxy \"http://10.21.22.21:3142\"; " | sudo tee /etc/apt/apt.conf.d/01proxy
