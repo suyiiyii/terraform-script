@@ -167,7 +167,7 @@ runcmd:
 
   # 应用 sysctl 参数而不重新启动
   - sudo sysctl --system
-  - apt install -y curl wget htop btop vim git tmux
+  - apt install -y curl wget htop btop atop vim git tmux nfs-common
 
 %{if nerdctl}
 
