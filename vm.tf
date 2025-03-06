@@ -41,6 +41,17 @@ variable "ips" {
   ]
 }
 
+variable "k8s_version_short" {
+  description = "Kubernetes version short form (e.g., v1.30)"
+  type        = string
+  default     = "v1.30"
+}
+
+variable "k8s_version_full" {
+  description = "Kubernetes version full form with build info (e.g., 1.30.2-1.1)"
+  type        = string
+  default     = "1.30.2-1.1"
+}
 
 locals {
   vm_name = "ubuntu"
@@ -79,16 +90,18 @@ resource "vsphere_virtual_machine" "vm" {
   }
   extra_config = {
     "guestinfo.userdata" = base64encode(templatefile("user-data.yaml.tpl", {
-      "hostname"      = each.value.hostname
-      "nerdctl"       = false
-      "docker_dind"   = false
-      "docker_ce"     = false
-      "docker_ubuntu" = false
-      "k8s_tools"     = false
-      "helm"          = false
-      "k9s"           = false
-      "neofetch"      = false
-      "k3s"           = false
+      "hostname"          = each.value.hostname
+      "nerdctl"           = false
+      "docker_dind"       = false
+      "docker_ce"         = false
+      "docker_ubuntu"     = false
+      "k8s_tools"         = false
+      "helm"              = false
+      "k9s"               = false
+      "neofetch"          = false
+      "k3s"               = false
+      "k8s_version_short" = var.k8s_version_short
+      "k8s_version_full"  = var.k8s_version_full
     }))
     "guestinfo.userdata.encoding" = "base64"
 

@@ -325,10 +325,10 @@ runcmd:
 %{if k8s_tools}
 
   # 使用 清华 源 安装 k8s 工具
-  - curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/kubernetes/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-  - echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] http://mirrors.tuna.tsinghua.edu.cn/kubernetes/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  - curl -fsSL https://mirrors.tuna.tsinghua.edu.cn/kubernetes/core:/stable:/${k8s_version_short}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  - echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] http://mirrors.tuna.tsinghua.edu.cn/kubernetes/core:/stable:/${k8s_version_short}/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
   - apt-get -o pkgProblemResolver=true -o Acquire::http=true update -y
-  - apt-get -o pkgProblemResolver=true -o Acquire::http=true install -y kubelet=1.30.2-1.1 kubeadm=1.30.2-1.1 kubectl=1.30.2-1.1 && apt-mark hold kubelet kubeadm kubectl
+  - apt-get -o pkgProblemResolver=true -o Acquire::http=true install -y kubelet=${k8s_version_full} kubeadm=${k8s_version_full} kubectl=${k8s_version_full} && apt-mark hold kubelet kubeadm kubectl
   # 配置 k 为 kubectl 的别名
   - echo "alias k=kubectl" >> /etc/bash.bashrc
   # 开启 kubectl 自动补全
