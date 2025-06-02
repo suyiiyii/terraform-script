@@ -30,6 +30,7 @@ hostname: ${hostname}
 ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC5E3GWFRw0aQrLNDIZ3E6b5VmvzXgFI5DOhnxCDtLqqYDhJ8WQIVnPvXqDJu0ZIhSLudMX5Fng/WPO5ES7OnmZOLqla5Tq26leV4MrvIWgHlZfJuBJNc2smFLf68yxZYm0QFjqsxOK3tg0Mc2Hb+93maOCDGUY/+IkiXtgCrHNUqvA3NlaMYmNUARDoUX/eAiGCn/M7nrEN7XAM885/GXAkdyMQxIiLJpj6HrTSXalTj8G6sPap/5IHb0+Jbx+NW8W69UDkOYDEy17yyJzb6jv3TU3Qm1mCHO4R4LMA/LxQOxsSxqXQMzyNRZyHPO2UI6zPlWojlcucsLHrpZ0RhsK8UmDeyRW9zN1J9TRngLykvC6TnkBPtKdQ5jx1kgN6KG4UUCPgqjncc1f7kF30V4kX+dXUDWggM1wd8ICH1BRgbTIvZdbl/X9OnVRbqSzMF6soTdNIEbTZMvPSfFrTEmt0G44ZLqWk8NKXeFSCQKey103KNyD4pKBCTLcpQHg7qE= suyiiyii@PC-5950x
   - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN1nwKPU78U9wvPfizWEV9iEZQoZNxSsL+/qmskBce4s
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAqLAoVJxUKqDd7xwh4rJzOj7Q2L1Kyv5SDUA+7vnHMN suyiiyii@PC-7840H
 
 # 写入文件
 write_files:
@@ -172,7 +173,7 @@ runcmd:
 %{if nerdctl}
 
   # 安装 nerdctl
-  - wget 10.21.22.21:8000/nerdctl-full-1.7.6-linux-amd64.tar.gz -O /root/nerdctl.tar.gz -q
+  - wget 10.21.22.21:8000/nerdctl-full-1.7.7-linux-amd64.tar.gz -O /root/nerdctl.tar.gz -q
   - tar -xvf /root/nerdctl.tar.gz -C /usr/local/
   - rm /root/nerdctl.tar.gz
   - ln /usr/local/bin/nerdctl /usr/local/bin/docker
